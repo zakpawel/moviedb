@@ -30,7 +30,7 @@ public class MoviedbApplicationTests {
   public void testCreateUserSuccessfully() throws Exception {
     UserCreateRequest userCreateRequest = UserCreateRequest.builder()
       .email("email@company.com")
-      .password("1234567890")
+      .password("0123456789")
       .build();
 
     mockMvc
@@ -74,4 +74,41 @@ public class MoviedbApplicationTests {
     assert userRepository.findAllByEmail("email@company.com").size() == 1;
   }
 
+  @Test
+  public void testCreateUserEmailValidationFails() throws Exception {
+    UserCreateRequest wrongEmail = UserCreateRequest.builder()
+      .email("emailcompany.com")
+      .password("0123456")
+      .build();
+
+
+    mockMvc
+      .perform(MockMvcRequestBuilders
+        .post("/user")
+        .contentType(MediaType.APPLICATION_JSON_UTF8)
+        .content(mapper.writeValueAsString(wrongEmail))
+      )
+      .andExpect(MockMvcResultMatchers.status().isBadRequest());
+
+    assert userRepository.findAllByEmail(wrongEmail.getEmail()).isEmpty();
+
+  }
+
+  @Test
+  public void testCreateUserPasswordValidationFails() throws Exception {
+    UserCreateRequest wrongPassword = UserCreateRequest.builder()
+      .email("email@company.com")
+      .password("0123456")
+      .build();
+
+    mockMvc
+      .perform(MockMvcRequestBuilders
+        .post("/user")
+        .contentType(MediaType.APPLICATION_JSON_UTF8)
+        .content(mapper.writeValueAsString(wrongPassword))
+      )
+      .andExpect(MockMvcResultMatchers.status().isBadRequest());
+
+    assert userRepository.findAllByEmail(wrongPassword.getEmail()).isEmpty();
+  }
 }
