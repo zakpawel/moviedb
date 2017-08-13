@@ -1,6 +1,7 @@
 package pawelzak.moviedb;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,9 +27,14 @@ public class MoviedbApplicationTests {
   @Autowired
   UserRepository userRepository;
 
+  @Before
+  public void setup() {
+    userRepository.deleteAll();
+  }
+
   @Test
   public void testCreateUserSuccessfully() throws Exception {
-    UserCreateRequest userCreateRequest = UserCreateRequest.builder()
+    UserCreateRequest user = UserCreateRequest.builder()
       .email("email@company.com")
       .password("0123456789")
       .build();
@@ -37,7 +43,7 @@ public class MoviedbApplicationTests {
       .perform(MockMvcRequestBuilders
         .post("/user")
         .contentType(MediaType.APPLICATION_JSON_UTF8)
-        .content(mapper.writeValueAsString(userCreateRequest))
+        .content(mapper.writeValueAsString(user))
       )
       .andExpect(MockMvcResultMatchers.status().isOk())
       .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_UTF8))
@@ -48,18 +54,16 @@ public class MoviedbApplicationTests {
 
   @Test
   public void testCreateExistingUserFails() throws Exception {
-    String email = "email@company.com";
-    String password = "0123456789";
+    User user = User.builder()
+      .email("email@company.com")
+      .password("0123456789")
+      .build();
 
-    userRepository.saveAndFlush(
-      User.builder()
-        .email(email)
-        .password(password)
-        .build());
+    userRepository.saveAndFlush(user);
 
     UserCreateRequest userCreateRequest = UserCreateRequest.builder()
-      .email(email)
-      .password(password)
+      .email(user.getEmail())
+      .password(user.getPassword())
       .build();
 
     mockMvc
@@ -80,7 +84,6 @@ public class MoviedbApplicationTests {
       .email("emailcompany.com")
       .password("0123456")
       .build();
-
 
     mockMvc
       .perform(MockMvcRequestBuilders
