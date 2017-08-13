@@ -1,6 +1,7 @@
 package pawelzak.moviedb;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,7 +50,7 @@ public class MoviedbApplicationTests {
       .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_UTF8))
       .andExpect(MockMvcResultMatchers.jsonPath("$.token").isString());
 
-    assert userRepository.findAllByEmail("email@company.com").size() == 1;
+    Assertions.assertThat(userRepository.findAllByEmail("email@company.com")).hasSize(1);
   }
 
   @Test
@@ -75,7 +76,7 @@ public class MoviedbApplicationTests {
       .andExpect(MockMvcResultMatchers.status().isConflict())
       .andExpect(MockMvcResultMatchers.content().string(""));
 
-    assert userRepository.findAllByEmail("email@company.com").size() == 1;
+    Assertions.assertThat(userRepository.findAllByEmail("email@company.com")).hasSize(1);
   }
 
   @Test
@@ -93,8 +94,7 @@ public class MoviedbApplicationTests {
       )
       .andExpect(MockMvcResultMatchers.status().isBadRequest());
 
-    assert userRepository.findAllByEmail(wrongEmail.getEmail()).isEmpty();
-
+    Assertions.assertThat(userRepository.findAllByEmail(wrongEmail.getEmail())).isEmpty();
   }
 
   @Test
@@ -112,6 +112,25 @@ public class MoviedbApplicationTests {
       )
       .andExpect(MockMvcResultMatchers.status().isBadRequest());
 
-    assert userRepository.findAllByEmail(wrongPassword.getEmail()).isEmpty();
+    Assertions.assertThat(userRepository.findAllByEmail(wrongPassword.getEmail())).isEmpty();
+  }
+
+  @Test
+  public void testPasswordIsHashed() throws Exception {
+    UserCreateRequest userRequest = UserCreateRequest.builder()
+      .email("email@company.com")
+      .password("0123456789")
+      .build();
+
+    mockMvc
+      .perform(MockMvcRequestBuilders
+        .post("/user")
+        .contentType(MediaType.APPLICATION_JSON_UTF8)
+        .content(mapper.writeValueAsString(userRequest))
+      )
+      .andExpect(MockMvcResultMatchers.status().isOk());
+
+    User createdUser = userRepository.findByEmail(userRequest.getEmail());
+    Assertions.assertThat(createdUser.getPassword()).isNotEqualTo(userRequest.getPassword());
   }
 }
