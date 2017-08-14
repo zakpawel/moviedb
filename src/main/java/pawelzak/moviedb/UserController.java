@@ -19,27 +19,27 @@ public class UserController {
   @Autowired
   PasswordEncoder passwordEncoder;
 
+  @Autowired
+  TokenService tokenService;
+
   @RequestMapping(path = "user", method = RequestMethod.POST)
   @ResponseBody
-  public ResponseEntity<?> createAccount(
-    @Valid @RequestBody UserCreateRequest userCreateRequest
-    ) {
+  public ResponseEntity<?> createAccount(@Valid @RequestBody UserCreateRequest userCreateRequest) {
     User user = userRepository.findByEmail(userCreateRequest.getEmail());
 
     if (user == null) {
-      userRepository.saveAndFlush(
+      User createdUser = userRepository.saveAndFlush(
         User.builder()
         .email(userCreateRequest.getEmail())
         .password(passwordEncoder.encode(userCreateRequest.getPassword()))
         .build());
 
       return new ResponseEntity<TokenResponse>(
-        TokenResponse.builder().token("").build(),
+        TokenResponse.builder().token(tokenService.createToken(createdUser.getEmail())).build(),
         HttpStatus.OK);
     }
 
     return new ResponseEntity(HttpStatus.CONFLICT);
-
   }
 
   @RequestMapping(path = "login", method = RequestMethod.POST)
@@ -54,7 +54,7 @@ public class UserController {
     }
 
     return new ResponseEntity<TokenResponse>(
-      TokenResponse.builder().token("").build(),
+      TokenResponse.builder().token(tokenService.createToken(user.getEmail())).build(),
       HttpStatus.OK);
   }
 }
