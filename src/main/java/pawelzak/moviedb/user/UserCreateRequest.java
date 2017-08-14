@@ -1,4 +1,4 @@
-package pawelzak.moviedb;
+package pawelzak.moviedb.user;
 
 import lombok.Builder;
 import lombok.Data;

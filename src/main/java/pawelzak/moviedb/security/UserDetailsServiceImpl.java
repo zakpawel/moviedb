@@ -1,10 +1,12 @@
-package pawelzak.moviedb;
+package pawelzak.moviedb.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import pawelzak.moviedb.entities.User;
+import pawelzak.moviedb.user.UserRepository;
 
 import java.util.Collections;
 

@@ -1,4 +1,4 @@
-package pawelzak.moviedb;
+package pawelzak.moviedb.security;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

@@ -1,4 +1,4 @@
-package pawelzak.moviedb;
+package pawelzak.moviedb.security;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;

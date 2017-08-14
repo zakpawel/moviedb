@@ -1,4 +1,4 @@
-package pawelzak.moviedb;
+package pawelzak.moviedb.security;
 
 import java.util.function.Supplier;
 
