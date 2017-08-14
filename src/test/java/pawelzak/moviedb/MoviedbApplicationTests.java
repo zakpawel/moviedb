@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -27,6 +28,9 @@ public class MoviedbApplicationTests {
 
   @Autowired
   UserRepository userRepository;
+
+  @Autowired
+  PasswordEncoder passwordEncoder;
 
   @Before
   public void setup() {
@@ -131,6 +135,6 @@ public class MoviedbApplicationTests {
       .andExpect(MockMvcResultMatchers.status().isOk());
 
     User createdUser = userRepository.findByEmail(userRequest.getEmail());
-    Assertions.assertThat(createdUser.getPassword()).isNotEqualTo(userRequest.getPassword());
+    Assertions.assertThat(passwordEncoder.matches(userRequest.getPassword(), createdUser.getPassword())).isTrue();
   }
 }
