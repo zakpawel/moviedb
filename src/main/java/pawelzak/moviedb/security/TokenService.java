@@ -1,54 +1,20 @@
 package pawelzak.moviedb.security;
 
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Date;
 
-@Service
-public class TokenService {
+public interface TokenService {
+  String getToken(HttpServletRequest request);
 
-  @Value("${token.expiresIn}")
-  Long expiresIn;
+  void setToken(HttpServletResponse response, String token);
 
-  @Autowired
-  TokenSecretSupplier tokenSecretSupplier;
+  String extractToken(String authorizationHeader);
 
-  public String getToken(HttpServletRequest request) {
-    String authHeader = request.getHeader("Authorization");
-    if (authHeader != null) {
-      return authHeader.replaceAll("Bearer ", "");
-    }
-    return null;
-  }
+  String removeBearerPrefix(String authorizationHeader);
 
-  public void setToken(HttpServletResponse response, String token) {
-    response.addHeader("Authorization", "Bearer " + token);
-  }
+  String createToken(String email);
 
-  public String createToken(String email) {
-    return createToken(email, expiresIn);
-  }
+  String createToken(String email, long expiresIn);
 
-  public String createToken(String email, long expiresIn) {
-    return Jwts.builder()
-      .setSubject(email)
-      .setExpiration(new Date(new Date().getTime() + expiresIn))
-      .signWith(SignatureAlgorithm.HS512, tokenSecretSupplier.get())
-      .compact();
-  }
-
-  public String getSubject(String token) {
-    String subject = Jwts.parser()
-      .setSigningKey(tokenSecretSupplier.get())
-      .parseClaimsJws(token)
-      .getBody()
-      .getSubject();
-    return subject;
-  }
+  String getSubject(String token);
 }
