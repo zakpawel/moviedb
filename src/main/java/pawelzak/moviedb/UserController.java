@@ -34,27 +34,9 @@ public class UserController {
         .password(passwordEncoder.encode(userCreateRequest.getPassword()))
         .build());
 
-      return new ResponseEntity<TokenResponse>(
-        TokenResponse.builder().token(tokenService.createToken(createdUser.getEmail())).build(),
-        HttpStatus.OK);
+      return new ResponseEntity(HttpStatus.OK);
     }
 
     return new ResponseEntity(HttpStatus.CONFLICT);
-  }
-
-  @RequestMapping(path = "login", method = RequestMethod.POST)
-  @ResponseBody
-  public ResponseEntity<?> login(@RequestBody UserLoginRequest userLoginRequest) {
-    User user = userRepository.findByEmail(userLoginRequest.getEmail());
-
-    if (user == null) {
-      return new ResponseEntity(HttpStatus.UNAUTHORIZED);
-    } else if (!passwordEncoder.matches(userLoginRequest.getPassword(), user.getPassword())) {
-      return new ResponseEntity(HttpStatus.UNAUTHORIZED);
-    }
-
-    return new ResponseEntity<TokenResponse>(
-      TokenResponse.builder().token(tokenService.createToken(user.getEmail())).build(),
-      HttpStatus.OK);
   }
 }

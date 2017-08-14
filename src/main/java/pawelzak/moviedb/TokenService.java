@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
 
 @Service
@@ -16,6 +18,18 @@ public class TokenService {
 
   @Autowired
   TokenSecretSupplier tokenSecretSupplier;
+
+  public String getToken(HttpServletRequest request) {
+    String authHeader = request.getHeader("Authorization");
+    if (authHeader != null) {
+      return authHeader.replaceAll("Bearer ", "");
+    }
+    return null;
+  }
+
+  public void setToken(HttpServletResponse response, String token) {
+    response.addHeader("Authorization", "Bearer " + token);
+  }
 
   public String createToken(String email) {
     return createToken(email, expiresIn);

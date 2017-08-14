@@ -52,6 +52,7 @@ public class UserControllerTests {
       public boolean matches(Object o) {
         if (o instanceof String) {
           String token = (String) o;
+          token = token.replaceAll("Bearer ", "");
           String subject = tokenService.getSubject(token);
           return email.equals(subject);
         }
@@ -79,8 +80,7 @@ public class UserControllerTests {
         .content(mapper.writeValueAsString(user))
       )
       .andExpect(MockMvcResultMatchers.status().isOk())
-      .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_UTF8))
-      .andExpect(MockMvcResultMatchers.jsonPath("$.token").value(tokenMatcher(user.getEmail())));
+      .andExpect(MockMvcResultMatchers.content().string(""));
 
     Assertions.assertThat(userRepository.findAllByEmail("email@company.com")).hasSize(1);
   }
@@ -188,7 +188,7 @@ public class UserControllerTests {
         .contentType(MediaType.APPLICATION_JSON_UTF8)
         .content(mapper.writeValueAsString(userLoginRequest))
       )
-      .andExpect(MockMvcResultMatchers.jsonPath("$.token").value(tokenMatcher(userLoginRequest.getEmail())))
+      .andExpect(MockMvcResultMatchers.header().string("Authorization", tokenMatcher(userLoginRequest.getEmail())))
       .andExpect(MockMvcResultMatchers.status().isOk());
   }
 
