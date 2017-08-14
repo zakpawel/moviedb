@@ -1,5 +1,8 @@
 package pawelzak.moviedb.security;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -12,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collections;
 
+@Slf4j
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
   private TokenService tokenService;
 
@@ -28,13 +32,24 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
       return;
     }
 
-    String subject = tokenService.getSubject(token);
+    String subject = null;
 
-    if (subject != null) {
-      UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(subject, null, Collections.emptyList());
-      SecurityContextHolder.getContext().setAuthentication(authentication);
+    try {
+      subject = tokenService.getSubject(token);
+
+      if (subject != null) {
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(subject, null, Collections.emptyList());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+      }
+    }
+    catch (ExpiredJwtException e) {
+      log.info("{} Token: {}", e.getMessage(), token);
+    }
+    catch (JwtException e) {
+      log.warn("Exception while parsing token:", e);
+    }
+    finally {
       chain.doFilter(request, response);
     }
-
   }
 }

@@ -13,9 +13,6 @@ import java.util.Date;
 @Service
 public class TokenServiceImpl implements TokenService {
 
-  public static final String AUTHORIZATION_HEADER_KEY = "Authorization";
-  public static final String BEARER_PREFIX = "Bearer ";
-
   @Value("${token.expiresIn}")
   Long expiresIn;
 
@@ -24,7 +21,7 @@ public class TokenServiceImpl implements TokenService {
 
   @Override
   public String extractToken(String authorizationHeader) {
-    if (authorizationHeader != null) {
+    if (authorizationHeader != null && authorizationHeader.startsWith(BEARER_PREFIX)) {
       return removeBearerPrefix(authorizationHeader);
     }
     return null;
@@ -61,11 +58,10 @@ public class TokenServiceImpl implements TokenService {
 
   @Override
   public String getSubject(String token) {
-    String subject = Jwts.parser()
+    return Jwts.parser()
       .setSigningKey(tokenSecretSupplier.get())
       .parseClaimsJws(token)
       .getBody()
       .getSubject();
-    return subject;
   }
 }

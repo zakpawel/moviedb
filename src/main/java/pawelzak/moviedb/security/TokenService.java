@@ -4,6 +4,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public interface TokenService {
+  public static final String AUTHORIZATION_HEADER_KEY = "Authorization";
+  public static final String BEARER_PREFIX = "Bearer ";
+
   String getToken(HttpServletRequest request);
 
   void setToken(HttpServletResponse response, String token);

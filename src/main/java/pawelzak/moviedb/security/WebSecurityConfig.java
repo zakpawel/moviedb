@@ -36,11 +36,15 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
   @Autowired
   ObjectMapper objectMapper;
 
+  @Autowired
+  CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+
   @Override
   protected void configure(HttpSecurity http) throws Exception {
     http
       .csrf().disable()
       .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
+      .exceptionHandling().authenticationEntryPoint(customAuthenticationEntryPoint).and()
       .authorizeRequests()
       .antMatchers(HttpMethod.POST, "/user").permitAll()
       .anyRequest().authenticated().and()

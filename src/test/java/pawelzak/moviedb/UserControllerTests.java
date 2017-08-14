@@ -238,7 +238,7 @@ public class UserControllerTests {
       .perform(MockMvcRequestBuilders
         .delete("/user")
       )
-      .andExpect(MockMvcResultMatchers.status().isForbidden());
+      .andExpect(MockMvcResultMatchers.status().isUnauthorized());
 
     mockMvc
       .perform(MockMvcRequestBuilders
