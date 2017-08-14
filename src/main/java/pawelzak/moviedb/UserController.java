@@ -41,4 +41,20 @@ public class UserController {
     return new ResponseEntity(HttpStatus.CONFLICT);
 
   }
+
+  @RequestMapping(path = "login", method = RequestMethod.POST)
+  @ResponseBody
+  public ResponseEntity<?> login(@RequestBody UserLoginRequest userLoginRequest) {
+    User user = userRepository.findByEmail(userLoginRequest.getEmail());
+
+    if (user == null) {
+      return new ResponseEntity(HttpStatus.UNAUTHORIZED);
+    } else if (!passwordEncoder.matches(userLoginRequest.getPassword(), user.getPassword())) {
+      return new ResponseEntity(HttpStatus.UNAUTHORIZED);
+    }
+
+    return new ResponseEntity<TokenResponse>(
+      TokenResponse.builder().token("").build(),
+      HttpStatus.OK);
+  }
 }

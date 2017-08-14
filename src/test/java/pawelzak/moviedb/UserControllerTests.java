@@ -18,7 +18,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-public class MoviedbApplicationTests {
+public class UserControllerTests {
 
   @Autowired
   MockMvc mockMvc;
@@ -136,5 +136,55 @@ public class MoviedbApplicationTests {
 
     User createdUser = userRepository.findByEmail(userRequest.getEmail());
     Assertions.assertThat(passwordEncoder.matches(userRequest.getPassword(), createdUser.getPassword())).isTrue();
+  }
+
+  @Test
+  public void testUserLoginSuccessfully() throws Exception {
+    String password = "0123456789";
+
+    User newUser = User.builder()
+      .email("email@company.com")
+      .password(passwordEncoder.encode(password))
+      .build();
+
+    User savedUser = userRepository.saveAndFlush(newUser);
+
+    UserLoginRequest userLoginRequest = UserLoginRequest.builder()
+      .email(newUser.getEmail())
+      .password(password)
+      .build();
+
+    mockMvc
+      .perform(MockMvcRequestBuilders
+        .post("/login")
+        .contentType(MediaType.APPLICATION_JSON_UTF8)
+        .content(mapper.writeValueAsString(userLoginRequest))
+      )
+      .andExpect(MockMvcResultMatchers.status().isOk());
+  }
+
+  @Test
+  public void testUserLoginFailsWhenWrongPassword() throws Exception {
+    String password = "0123456789";
+
+    User newUser = User.builder()
+      .email("email@company.com")
+      .password(passwordEncoder.encode(password))
+      .build();
+
+    User savedUser = userRepository.saveAndFlush(newUser);
+
+    UserLoginRequest userLoginRequest = UserLoginRequest.builder()
+      .email(newUser.getEmail())
+      .password(password + "!")
+      .build();
+
+    mockMvc
+      .perform(MockMvcRequestBuilders
+        .post("/login")
+        .contentType(MediaType.APPLICATION_JSON_UTF8)
+        .content(mapper.writeValueAsString(userLoginRequest))
+      )
+      .andExpect(MockMvcResultMatchers.status().isUnauthorized());
   }
 }
