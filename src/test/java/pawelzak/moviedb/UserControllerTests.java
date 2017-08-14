@@ -222,4 +222,31 @@ public class UserControllerTests {
       )
       .andExpect(MockMvcResultMatchers.status().isUnauthorized());
   }
+
+  @Test
+  public void testUserDelete() throws Exception {
+    User newUser = User.builder()
+      .email("email@company.com")
+      .password("0123456789")
+      .build();
+
+    userRepository.save(newUser);
+
+    String token = tokenService.createToken(newUser.getEmail());
+
+    mockMvc
+      .perform(MockMvcRequestBuilders
+        .delete("/user")
+      )
+      .andExpect(MockMvcResultMatchers.status().isForbidden());
+
+    mockMvc
+      .perform(MockMvcRequestBuilders
+        .delete("/user")
+        .header("Authorization", "Bearer " + token)
+      )
+      .andExpect(MockMvcResultMatchers.status().isOk());
+
+    Assertions.assertThat(userRepository.findByEmail(newUser.getEmail())).isNull();
+  }
 }
