@@ -18,6 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import pawelzak.moviedb.entities.User;
+import pawelzak.moviedb.movies.MovieRepository;
 import pawelzak.moviedb.security.TokenSecretSupplier;
 import pawelzak.moviedb.security.TokenService;
 import pawelzak.moviedb.user.UserCreateRequest;
@@ -39,6 +40,9 @@ public class UserControllerTests {
   UserRepository userRepository;
 
   @Autowired
+  MovieRepository movieRepository;
+
+  @Autowired
   TokenService tokenService;
 
   @Autowired
@@ -49,6 +53,7 @@ public class UserControllerTests {
 
   @Before
   public void setup() {
+    movieRepository.deleteAll();
     userRepository.deleteAll();
   }
 
